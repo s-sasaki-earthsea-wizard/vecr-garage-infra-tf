@@ -1,0 +1,18 @@
+# AWS Provider Configuration
+aws_access_key = "YOUR_AWS_ACCESS_KEY"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+aws_secret_key = "YOUR_AWS_SECRET_KEY"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+aws_region     = "ap-northeast-1"
+
+# OpenAI API Key
+openai_api_key = "sk-proj-*******"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+
+# Environment Configuration
+environment = "dev"
+project     = "vecr-garage"
+
+# Tags
+tags = {
+  Environment = "dev"
+  Project     = "vecr-garage"
+  ManagedBy   = "terraform"
+}
