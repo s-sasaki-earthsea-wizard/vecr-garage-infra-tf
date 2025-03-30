@@ -36,7 +36,7 @@ init: check-env ## Initialize the Terraform project
 
 plan: check-env ## Create a Terraform execution plan
 	cd environments/$(ENVIRONMENT) && \
-	AWS_PROFILE=$(AWS_PROFILE) terraform plan -out=tfplan
+	AWS_PROFILE=$(AWS_PROFILE) TF_VAR_environment=$(ENVIRONMENT) TF_VAR_project=$(PROJECT) terraform plan -var-file=../../terraform.tfvars -out=tfplan
 
 apply: check-env ## Apply the Terraform execution plan
 	cd environments/$(ENVIRONMENT) && \
@@ -44,7 +44,7 @@ apply: check-env ## Apply the Terraform execution plan
 
 destroy: check-env ## Destroy the Terraform project
 	cd environments/$(ENVIRONMENT) && \
-	AWS_PROFILE=$(AWS_PROFILE) terraform destroy
+	AWS_PROFILE=$(AWS_PROFILE) terraform destroy -var-file=../../terraform.tfvars
 
 
 

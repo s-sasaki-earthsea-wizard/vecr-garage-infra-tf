@@ -16,3 +16,18 @@ tags = {
   Project     = "vecr-garage"
   ManagedBy   = "terraform"
 }
+
+# EC2 Configuration
+instance_type = "t4g.micro"
+key_name = "vecr-ssh-key"  # Make sure this SSH key exists in your AWS account
+root_volume_size = 20
+create_elastic_ip = true
+detailed_monitoring_enabled = false
+
+# Networking Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["ap-northeast-1a"]
+create_nat_gateway = false
+
+# Security Configuration
+ssh_allowed_cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production!

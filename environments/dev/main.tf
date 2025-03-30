@@ -63,4 +63,9 @@ module "ec2" {
   project     = var.project
   environment = var.environment
   iam_role_arn = module.iam.ec2_role_arn
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  root_volume_size = var.root_volume_size
+  create_elastic_ip = var.create_elastic_ip
+  detailed_monitoring_enabled = var.detailed_monitoring_enabled
 }

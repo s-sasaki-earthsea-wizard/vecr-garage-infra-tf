@@ -40,6 +40,14 @@ terraform.rc
 
 # End of https://www.toptal.com/developers/gitignore/api/terraform
 
+# Terraform lock file and plan file
+environments/dev/.terraform.lock.hcl
+environments/dev/tfplan
+
+# SSH key files
+*.pem 
+# These files are actually located in ~/.aws, but added to .gitignore just in case.
+
 # Environment variables
 .env
 !.env.example
