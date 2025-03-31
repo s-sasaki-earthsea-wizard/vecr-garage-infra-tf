@@ -80,6 +80,15 @@ variable "detailed_monitoring_enabled" {
 }
 
 # ------------------------------------------------------------
+# Secrets Manager Configuration
+# ------------------------------------------------------------
+
+variable "secrets_version" {
+  description = "Secrets version"
+  type        = string
+}
+
+# ------------------------------------------------------------
 # Networking Configuration
 # ------------------------------------------------------------
 

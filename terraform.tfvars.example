@@ -18,11 +18,15 @@ tags = {
 }
 
 # EC2 Configuration
-instance_type = "t4g.micro"
+instance_type = "t3.micro"
 key_name = "vecr-ssh-key"  # Make sure this SSH key exists in your AWS account
 root_volume_size = 20
 create_elastic_ip = true
 detailed_monitoring_enabled = false
+
+# Secrets Manager Configuration
+secrets_version = "v1"
+
 
 # Networking Configuration
 vpc_cidr = "10.0.0.0/16"

@@ -54,3 +54,13 @@ variable "detailed_monitoring_enabled" {
   type        = bool
   default     = false
 }
+
+variable "vpc_id" {
+  description = "ID of the VPC where the EC2 instance will be launched"
+  type        = string
+}
+
+variable "subnet_id" {
+  description = "ID of the subnet where the EC2 instance will be launched"
+  type        = string
+}

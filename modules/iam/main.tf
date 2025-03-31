@@ -22,23 +22,37 @@ resource "aws_iam_role" "ec2_role" {
   }
 }
 
-# IAM policy for accessing Secrets Manager
+# IAM policy for accessing Secrets Manager and EC2
 resource "aws_iam_policy" "secrets_manager_access" {
   name        = "${var.project}-${var.environment}-secrets-access-policy"
-  description = "Policy to allow access to project secrets in Secrets Manager"
+  description = "Policy to allow access to project secrets in Secrets Manager and EC2"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Effect = "Allow"
         Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Effect = "Allow"
         Resource = [
           "arn:aws:secretsmanager:*:*:secret:${var.project}-${var.environment}-*"
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:ListSecrets"
+        ]
+        Resource = "*"
+      },
+      {
+        Action = [
+          "ec2:DescribeInstances"
+        ]
+        Effect = "Allow"
+        Resource = "*"
       }
     ]
   })

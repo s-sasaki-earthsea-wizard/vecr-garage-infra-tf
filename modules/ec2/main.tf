@@ -1,11 +1,11 @@
-# Data source to get the latest Amazon Linux 2 AMI
-data "aws_ami" "amazon_linux_2" {
+# Data source to get the latest Ubuntu 22.04 LTS AMI
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
 
   filter {
@@ -18,6 +18,7 @@ data "aws_ami" "amazon_linux_2" {
 resource "aws_security_group" "ec2_sg" {
   name        = "${var.project}-${var.environment}-ec2-sg"
   description = "Security group for ${var.project} EC2 instances"
+  vpc_id      = var.vpc_id
 
   # SSH access from anywhere (you might want to restrict this in production)
   ingress {
@@ -46,10 +47,11 @@ resource "aws_security_group" "ec2_sg" {
 
 # EC2 instance
 resource "aws_instance" "app_server" {
-  ami                    = data.aws_ami.amazon_linux_2.id
+  ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+  subnet_id              = var.subnet_id
   iam_instance_profile   = var.iam_instance_profile_name
 
   root_block_device {
@@ -63,14 +65,21 @@ resource "aws_instance" "app_server" {
     #!/bin/bash
     echo "Setting up ${var.project} application server for ${var.environment} environment"
     
-    # Update system
-    yum update -y
+    # Update system and apply all updates
+    apt-get update
+    apt-get upgrade -y
     
-    # Install AWS CLI
-    yum install -y aws-cli
-    
-    # Install additional packages if needed
-    # yum install -y <packages>
+    # Install required packages
+    apt-get install -y \
+      awscli \
+      jq \
+      git \
+      curl \
+      wget \
+      make \
+      vim \
+      net-tools \
+      dnsutils
     
     # Setup application directory
     mkdir -p /opt/${var.project}

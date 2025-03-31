@@ -1,0 +1,29 @@
+digraph G {
+  rankdir = "RL";
+  node [shape = rect, fontname = "sans-serif"];
+  "aws_secretsmanager_secret.main" [label="aws_secretsmanager_secret.main"];
+  "aws_secretsmanager_secret_version.initial" [label="aws_secretsmanager_secret_version.initial"];
+  subgraph "cluster_module.ec2" {
+    label = "module.ec2"
+    fontname = "sans-serif"
+    "module.ec2.data.aws_ami.amazon_linux_2" [label="data.aws_ami.amazon_linux_2"];
+    "module.ec2.aws_eip.app_server" [label="aws_eip.app_server"];
+    "module.ec2.aws_instance.app_server" [label="aws_instance.app_server"];
+    "module.ec2.aws_security_group.ec2_sg" [label="aws_security_group.ec2_sg"];
+  }
+  subgraph "cluster_module.iam" {
+    label = "module.iam"
+    fontname = "sans-serif"
+    "module.iam.aws_iam_instance_profile.ec2_profile" [label="aws_iam_instance_profile.ec2_profile"];
+    "module.iam.aws_iam_policy.secrets_manager_access" [label="aws_iam_policy.secrets_manager_access"];
+    "module.iam.aws_iam_role.ec2_role" [label="aws_iam_role.ec2_role"];
+    "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" [label="aws_iam_role_policy_attachment.secrets_manager_attach"];
+  }
+  "aws_secretsmanager_secret_version.initial" -> "aws_secretsmanager_secret.main";
+  "module.ec2.aws_eip.app_server" -> "module.ec2.aws_instance.app_server";
+  "module.ec2.aws_instance.app_server" -> "module.ec2.data.aws_ami.amazon_linux_2";
+  "module.ec2.aws_instance.app_server" -> "module.ec2.aws_security_group.ec2_sg";
+  "module.iam.aws_iam_instance_profile.ec2_profile" -> "module.iam.aws_iam_role.ec2_role";
+  "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" -> "module.iam.aws_iam_policy.secrets_manager_access";
+  "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" -> "module.iam.aws_iam_role.ec2_role";
+}

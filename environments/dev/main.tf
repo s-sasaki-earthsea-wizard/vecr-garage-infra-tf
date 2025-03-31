@@ -27,11 +27,11 @@ provider "aws" {
 
 # Secrets Manager for storing sensitive information
 resource "aws_secretsmanager_secret" "main" {
-  name = "${var.project}-${var.environment}-secrets"
+  name = "${var.project}-${var.environment}-secrets-${var.secrets_version}"
   description = "Secrets for ${var.project} ${var.environment} environment"
 
   tags = {
-    Name        = "${var.project}-${var.environment}-secrets"
+    Name        = "${var.project}-${var.environment}-secrets-${var.secrets_version}"
     Environment = var.environment
   }
 }
@@ -56,6 +56,17 @@ module "iam" {
   environment = var.environment
 }
 
+# Networking Module
+module "networking" {
+  source = "../../modules/networking"
+
+  project     = var.project
+  environment = var.environment
+  vpc_cidr    = var.vpc_cidr
+  availability_zones = var.availability_zones
+  create_nat_gateway = var.create_nat_gateway
+}
+
 # EC2 Module
 module "ec2" {
   source = "../../modules/ec2"
@@ -63,9 +74,12 @@ module "ec2" {
   project     = var.project
   environment = var.environment
   iam_role_arn = module.iam.ec2_role_arn
+  iam_instance_profile_name = module.iam.ec2_instance_profile_name
   instance_type = var.instance_type
   key_name      = var.key_name
   root_volume_size = var.root_volume_size
   create_elastic_ip = var.create_elastic_ip
   detailed_monitoring_enabled = var.detailed_monitoring_enabled
+  vpc_id        = module.networking.vpc_id
+  subnet_id     = module.networking.public_subnet_ids[0]  # Using the first public subnet
 }

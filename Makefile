@@ -4,8 +4,11 @@
 include .env
 export
 
-default: help
+# Define the root directory as the directory of the Makefile
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
+# Set help as the default target
+default: help
 
 # ------------------------------------------------------------
 # Environment setup
@@ -36,17 +39,28 @@ init: check-env ## Initialize the Terraform project
 
 plan: check-env ## Create a Terraform execution plan
 	cd environments/$(ENVIRONMENT) && \
-	AWS_PROFILE=$(AWS_PROFILE) TF_VAR_environment=$(ENVIRONMENT) TF_VAR_project=$(PROJECT) terraform plan -var-file=../../terraform.tfvars -out=tfplan
+	AWS_PROFILE=$(AWS_PROFILE) TF_VAR_environment=$(ENVIRONMENT) TF_VAR_project=$(PROJECT) terraform plan -var-file=${ROOT_DIR}/terraform.tfvars -out=tfplan
 
 apply: check-env ## Apply the Terraform execution plan
 	cd environments/$(ENVIRONMENT) && \
 	AWS_PROFILE=$(AWS_PROFILE) terraform apply tfplan
 
-destroy: check-env ## Destroy the Terraform project
+graph: check-env ## Generate a Terraform graph
 	cd environments/$(ENVIRONMENT) && \
-	AWS_PROFILE=$(AWS_PROFILE) terraform destroy -var-file=../../terraform.tfvars
+	AWS_PROFILE=$(AWS_PROFILE) terraform graph \
+	> $(ROOT_DIR)/graphs/graph.dot && \
+	dot -Tpng $(ROOT_DIR)/graphs/graph.dot -o $(ROOT_DIR)/graphs/graph.png
 
+# DANGER!: The following targets will destroy resources created by Terraform.
+# Use with extreme caution.
 
+destroy-all: check-env ## DANGER!: Destroy all resources created by Terraform. Use with extreme caution.
+	cd environments/$(ENVIRONMENT) && \
+	AWS_PROFILE=$(AWS_PROFILE) TF_VAR_environment=$(ENVIRONMENT) TF_VAR_project=$(PROJECT) terraform destroy -var-file=${ROOT_DIR}/terraform.tfvars
+
+destroy-ec2: check-env ## DANGER!: Destroy the EC2 instance. Use with extreme caution.
+	cd environments/$(ENVIRONMENT) && \
+	AWS_PROFILE=$(AWS_PROFILE) terraform destroy -target=module.ec2
 
 # ------------------------------------------------------------
 # Help
