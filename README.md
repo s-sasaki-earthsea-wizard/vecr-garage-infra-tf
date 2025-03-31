@@ -90,6 +90,24 @@ make destroy
 - `ENVIRONMENT`: 対象環境（dev/staging/prod）
 - `PROJECT`: プロジェクト名
 
+## Tips 
+
+### キーペアの作成
+
+キーペアは例えば以下のようなコマンドで作成します:
+
+```bash
+aws ec2 create-key-pair --key-name MyKeyPair --query 'KeyMaterial' --output text > ~/.aws/vecr-ssh-key.pem
+```
+
+### EC2インスタンスからSecrets managerをクエリする
+
+EC2インスタンスからAPIキーなどのセンシティブな情報は以下のようにクエリできます。
+
+```bash
+aws secretsmanager get-secret-value --secret-id vecr-garage-dev-secrets-v1 | jq -r '.SecretString | fromjson | .openai_api_key'
+```
+
 ## 注意事項
 
 - 本番環境への変更は必ずレビューを経て行ってください

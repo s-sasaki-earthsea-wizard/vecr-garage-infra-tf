@@ -64,3 +64,12 @@ variable "subnet_id" {
   description = "ID of the subnet where the EC2 instance will be launched"
   type        = string
 }
+
+variable "users" {
+  description = "List of users to create with their SSH keys"
+  type = list(object({
+    username = string
+    ssh_keys = list(string)
+  }))
+  default = []
+}

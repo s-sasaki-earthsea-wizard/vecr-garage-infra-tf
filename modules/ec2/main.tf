@@ -67,19 +67,61 @@ resource "aws_instance" "app_server" {
     
     # Update system and apply all updates
     apt-get update
-    apt-get upgrade -y
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
     
     # Install required packages
     apt-get install -y \
-      awscli \
-      jq \
-      git \
-      curl \
-      wget \
-      make \
-      vim \
-      net-tools \
-      dnsutils
+    awscli \
+    jq \
+    git \
+    make \
+    curl
+
+    # Install Docker and Docker Compose
+    # TODO: Add Docker and Docker Compose installation
+    
+    # Ensure ubuntu user's home directory exists
+    mkdir -p /home/ubuntu
+    chown ubuntu:ubuntu /home/ubuntu
+    
+    # Configure AWS CLI for root
+    mkdir -p /root/.aws
+    echo -e "[default]\nregion = ap-northeast-1" > /root/.aws/config
+    chmod 600 /root/.aws/config
+    
+    # Configure AWS CLI for ubuntu user
+    mkdir -p /home/ubuntu/.aws
+    echo -e "[default]\nregion = ap-northeast-1" > /home/ubuntu/.aws/config
+    chmod 600 /home/ubuntu/.aws/config
+    chown -R ubuntu:ubuntu /home/ubuntu/.aws
+    
+    # Install additional packages if needed
+    # apt-get install -y <packages>
+    
+    # Create users and set up SSH keys
+    %{ for user in var.users ~}
+    # Create user ${user.username}
+    useradd -m -s /bin/bash ${user.username}
+    mkdir -p /home/${user.username}/.ssh
+    chmod 700 /home/${user.username}/.ssh
+    
+    # Add user's SSH keys
+    %{ for key in user.ssh_keys ~}
+    echo "${key}" >> /home/${user.username}/.ssh/authorized_keys
+    %{ endfor ~}
+    chmod 600 /home/${user.username}/.ssh/authorized_keys
+    chown -R ${user.username}:${user.username} /home/${user.username}/.ssh
+    
+    # Add user to sudoers
+    echo "${user.username} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${user.username}
+    chmod 440 /etc/sudoers.d/${user.username}
+    
+    # Configure AWS CLI for user
+    mkdir -p /home/${user.username}/.aws
+    echo -e "[default]\nregion = ap-northeast-1" > /home/${user.username}/.aws/config
+    chmod 600 /home/${user.username}/.aws/config
+    chown -R ${user.username}:${user.username} /home/${user.username}/.aws
+    %{ endfor ~}
     
     # Setup application directory
     mkdir -p /opt/${var.project}

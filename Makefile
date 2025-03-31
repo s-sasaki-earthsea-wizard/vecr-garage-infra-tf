@@ -60,7 +60,7 @@ destroy-all: check-env ## DANGER!: Destroy all resources created by Terraform. U
 
 destroy-ec2: check-env ## DANGER!: Destroy the EC2 instance. Use with extreme caution.
 	cd environments/$(ENVIRONMENT) && \
-	AWS_PROFILE=$(AWS_PROFILE) terraform destroy -target=module.ec2
+	AWS_PROFILE=$(AWS_PROFILE) TF_VAR_environment=$(ENVIRONMENT) TF_VAR_project=$(PROJECT) terraform destroy -target=module.ec2 -var-file=${ROOT_DIR}/terraform.tfvars
 
 # ------------------------------------------------------------
 # Help

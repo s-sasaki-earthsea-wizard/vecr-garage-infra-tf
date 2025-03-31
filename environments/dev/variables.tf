@@ -117,3 +117,12 @@ variable "ssh_allowed_cidr_blocks" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "users" {
+  description = "List of users to create with their SSH keys"
+  type = list(object({
+    username = string
+    ssh_keys = list(string)
+  }))
+  default = []
+}

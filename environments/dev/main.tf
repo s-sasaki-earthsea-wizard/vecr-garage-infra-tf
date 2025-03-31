@@ -82,4 +82,5 @@ module "ec2" {
   detailed_monitoring_enabled = var.detailed_monitoring_enabled
   vpc_id        = module.networking.vpc_id
   subnet_id     = module.networking.public_subnet_ids[0]  # Using the first public subnet
+  users         = var.users
 }
