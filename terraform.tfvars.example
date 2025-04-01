@@ -1,0 +1,52 @@
+# AWS Provider Configuration
+aws_access_key = "YOUR_AWS_ACCESS_KEY"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+aws_secret_key = "YOUR_AWS_SECRET_KEY"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+aws_region     = "ap-northeast-1"
+
+# OpenAI API Key
+openai_api_key = "sk-proj-*******"  # DO NOT PUSH ACTUAL KEY! This is just a placeholder.
+
+# Environment Configuration
+environment = "dev"
+project     = "vecr-garage"
+
+# Tags
+tags = {
+  Environment = "dev"
+  Project     = "vecr-garage"
+  ManagedBy   = "terraform"
+}
+
+# EC2 Configuration
+instance_type = "t3.micro"
+key_name = "vecr-ssh-key"  # Make sure this SSH key exists in your AWS account
+root_volume_size = 20
+create_elastic_ip = true
+detailed_monitoring_enabled = false
+
+# EC2 Users Configuration
+
+users = [
+  {
+    username = "user1"
+    ssh_keys  = ["ssh-rsa AAAA..."]  # SSH keys of user1
+  },
+  {
+    username = "user2"
+    ssh_key  = [
+      "ssh-rsa AAAA...",
+      "ssh-rsa AAAA..."
+    ]  # SSH key of user2
+  }
+]
+
+# Secrets Manager Configuration
+secrets_version = "v1"
+
+# Networking Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["ap-northeast-1a"]
+create_nat_gateway = false
+
+# Security Configuration
+ssh_allowed_cidr_blocks = ["0.0.0.0/0"]  # Restrict this in production!
