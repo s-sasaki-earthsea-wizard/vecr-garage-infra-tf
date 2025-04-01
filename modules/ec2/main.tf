@@ -71,6 +71,7 @@ resource "aws_instance" "app_server" {
     
     # Install required packages
     apt-get install -y \
+    build-essential \
     awscli \
     jq \
     git \
@@ -78,7 +79,35 @@ resource "aws_instance" "app_server" {
     curl
 
     # Install Docker and Docker Compose
-    # TODO: Add Docker and Docker Compose installation
+    
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+
+    # Install Docker packages
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    
+    # Start and enable Docker service
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    
+    # Add ubuntu user to docker group
+    sudo usermod -aG docker ubuntu
+    
+    # Add created users to docker group
+    %{ for user in var.users ~}
+    sudo usermod -aG docker ${user.username}
+    %{ endfor ~}
     
     # Ensure ubuntu user's home directory exists
     mkdir -p /home/ubuntu
@@ -95,8 +124,9 @@ resource "aws_instance" "app_server" {
     chmod 600 /home/ubuntu/.aws/config
     chown -R ubuntu:ubuntu /home/ubuntu/.aws
     
-    # Install additional packages if needed
-    # apt-get install -y <packages>
+    # Update system
+    apt-get update
+    apt-get upgrade -y
     
     # Create users and set up SSH keys
     %{ for user in var.users ~}

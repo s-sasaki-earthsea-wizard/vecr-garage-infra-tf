@@ -6,7 +6,7 @@ digraph G {
   subgraph "cluster_module.ec2" {
     label = "module.ec2"
     fontname = "sans-serif"
-    "module.ec2.data.aws_ami.amazon_linux_2" [label="data.aws_ami.amazon_linux_2"];
+    "module.ec2.data.aws_ami.ubuntu" [label="data.aws_ami.ubuntu"];
     "module.ec2.aws_eip.app_server" [label="aws_eip.app_server"];
     "module.ec2.aws_instance.app_server" [label="aws_instance.app_server"];
     "module.ec2.aws_security_group.ec2_sg" [label="aws_security_group.ec2_sg"];
@@ -19,11 +19,40 @@ digraph G {
     "module.iam.aws_iam_role.ec2_role" [label="aws_iam_role.ec2_role"];
     "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" [label="aws_iam_role_policy_attachment.secrets_manager_attach"];
   }
+  subgraph "cluster_module.networking" {
+    label = "module.networking"
+    fontname = "sans-serif"
+    "module.networking.aws_eip.nat" [label="aws_eip.nat"];
+    "module.networking.aws_internet_gateway.main" [label="aws_internet_gateway.main"];
+    "module.networking.aws_nat_gateway.main" [label="aws_nat_gateway.main"];
+    "module.networking.aws_route_table.private" [label="aws_route_table.private"];
+    "module.networking.aws_route_table.public" [label="aws_route_table.public"];
+    "module.networking.aws_route_table_association.private" [label="aws_route_table_association.private"];
+    "module.networking.aws_route_table_association.public" [label="aws_route_table_association.public"];
+    "module.networking.aws_subnet.private" [label="aws_subnet.private"];
+    "module.networking.aws_subnet.public" [label="aws_subnet.public"];
+    "module.networking.aws_vpc.main" [label="aws_vpc.main"];
+  }
   "aws_secretsmanager_secret_version.initial" -> "aws_secretsmanager_secret.main";
   "module.ec2.aws_eip.app_server" -> "module.ec2.aws_instance.app_server";
-  "module.ec2.aws_instance.app_server" -> "module.ec2.data.aws_ami.amazon_linux_2";
+  "module.ec2.aws_instance.app_server" -> "module.ec2.data.aws_ami.ubuntu";
   "module.ec2.aws_instance.app_server" -> "module.ec2.aws_security_group.ec2_sg";
+  "module.ec2.aws_instance.app_server" -> "module.iam.aws_iam_instance_profile.ec2_profile";
+  "module.ec2.aws_instance.app_server" -> "module.networking.aws_subnet.public";
+  "module.ec2.aws_security_group.ec2_sg" -> "module.networking.aws_vpc.main";
   "module.iam.aws_iam_instance_profile.ec2_profile" -> "module.iam.aws_iam_role.ec2_role";
   "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" -> "module.iam.aws_iam_policy.secrets_manager_access";
   "module.iam.aws_iam_role_policy_attachment.secrets_manager_attach" -> "module.iam.aws_iam_role.ec2_role";
+  "module.networking.aws_internet_gateway.main" -> "module.networking.aws_vpc.main";
+  "module.networking.aws_nat_gateway.main" -> "module.networking.aws_eip.nat";
+  "module.networking.aws_nat_gateway.main" -> "module.networking.aws_internet_gateway.main";
+  "module.networking.aws_nat_gateway.main" -> "module.networking.aws_subnet.public";
+  "module.networking.aws_route_table.private" -> "module.networking.aws_nat_gateway.main";
+  "module.networking.aws_route_table.public" -> "module.networking.aws_internet_gateway.main";
+  "module.networking.aws_route_table_association.private" -> "module.networking.aws_route_table.private";
+  "module.networking.aws_route_table_association.private" -> "module.networking.aws_subnet.private";
+  "module.networking.aws_route_table_association.public" -> "module.networking.aws_route_table.public";
+  "module.networking.aws_route_table_association.public" -> "module.networking.aws_subnet.public";
+  "module.networking.aws_subnet.private" -> "module.networking.aws_vpc.main";
+  "module.networking.aws_subnet.public" -> "module.networking.aws_vpc.main";
 }
